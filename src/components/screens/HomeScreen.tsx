@@ -6,19 +6,19 @@ interface HomeScreenProps {
   onTabChange: (tab: ScreenTab) => void;
   onSelectProductForCustomizer: (productId: string) => void;
   onAddToCart: (product: ProductItem) => void;
-  cartCount: number;
-  cartTotal: number;
+  cartCount?: number;
+  cartTotal?: number;
   onOpenQuoteModal: () => void;
   searchQuery: string;
   onClearSearch: () => void;
 }
 
 export function HomeScreen({
-  onTabChange,
+  onTabChange: _onTabChange,
   onSelectProductForCustomizer,
   onAddToCart,
-  cartCount,
-  cartTotal,
+  cartCount: _cartCount,
+  cartTotal: _cartTotal,
   onOpenQuoteModal,
   searchQuery,
   onClearSearch,
@@ -59,7 +59,7 @@ export function HomeScreen({
   });
 
   return (
-    <div className="flex flex-col w-full gap-5 pb-36">
+    <div className="flex flex-col w-full gap-5 pb-12">
       {/* Search status bar if filtered */}
       {searchQuery && (
         <div className="flex items-center justify-between p-3 rounded-xl bg-[#eff4ff] border border-[#d3e4fe] animate-fadeIn">
@@ -374,49 +374,6 @@ export function HomeScreen({
           ขอใบเสนอราคา
         </button>
       </section>
-
-      {/* Sticky Bottom Cart & Checkout Bar (Floating above Nav) */}
-      <div className="fixed bottom-16 left-0 right-0 z-40 px-4 py-2.5 pointer-events-none transition-all duration-300">
-        <div className="max-w-md mx-auto pointer-events-auto rounded-2xl bg-[#213145]/95 backdrop-blur-xl text-white p-3 shadow-xl flex items-center justify-between gap-3 border border-white/10">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="relative w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center text-[#acedff] shrink-0">
-              <span className="material-symbols-outlined text-[22px]">shopping_bag</span>
-              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-[#acedff] text-[#003a46] text-[10px] font-black rounded-full flex items-center justify-center shadow-xs">
-                {cartCount}
-              </span>
-            </div>
-            <div className="flex flex-col min-w-0">
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-[11px] text-[#d3e4fe]/80">ยอดรวม</span>
-                <span className="text-[18px] font-extrabold text-white">
-                  ฿{cartTotal.toLocaleString()}
-                </span>
-              </div>
-              <span className="text-[10px] text-[#4cd7f6] truncate">
-                {cartCount >= 5 ? '✓ ฟรีค่าจัดส่งด่วนแล้ว' : 'ฟรีค่าจัดส่งเมื่อสั่ง 5 ชิ้นขึ้นไป'}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              type="button"
-              onClick={() => onTabChange('cart-and-quote')}
-              className="h-10 px-3 rounded-xl bg-white/20 hover:bg-white/30 text-white text-[12px] font-bold active:scale-95 transition-all"
-            >
-              ดูตะกร้า
-            </button>
-            <button
-              type="button"
-              onClick={() => onTabChange('cart-and-quote')}
-              className="h-10 px-3.5 rounded-xl bg-[#3cccea] hover:bg-[#acedff] text-[#003a46] text-[13px] font-extrabold shadow-md active:scale-95 transition-all flex items-center gap-1"
-            >
-              <span>ชำระเงิน</span>
-              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

@@ -121,7 +121,7 @@ export function LoginScreen({
             >
               <span className="material-symbols-outlined text-[18px]">person</span>
               <div className="flex flex-col text-left">
-                <span className="text-[12px] font-semibold leading-tight">ลูกค้าทั่วไป</span>
+                <span className="text-[12px] font-semibold leading-tight">ลูกค้า (สั่งผลิตเสื้อ)</span>
                 <span className="text-[10px] text-[#565e74] leading-none">Customer Portal</span>
               </div>
             </button>
@@ -139,8 +139,8 @@ export function LoginScreen({
             >
               <span className="material-symbols-outlined text-[18px]">shield_person</span>
               <div className="flex flex-col text-left">
-                <span className="text-[12px] font-semibold leading-tight">เจ้าหน้าที่ร้าน</span>
-                <span className="text-[10px] text-[#565e74] leading-none">Admin / Staff</span>
+                <span className="text-[12px] font-semibold leading-tight">เจ้าของเว็ป / แอดมิน</span>
+                <span className="text-[10px] text-[#565e74] leading-none">Owner Dashboard</span>
               </div>
             </button>
           </div>
@@ -154,9 +154,9 @@ export function LoginScreen({
                 <span className="material-symbols-outlined text-[18px]">lock</span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[12px] text-[#00288e] font-bold">พื้นที่ควบคุมฝ่ายผลิตและแอดมิน</p>
+                <p className="text-[12px] text-[#00288e] font-bold">ระบบเฉพาะเจ้าของร้าน &amp; ผู้จัดการฝ่ายผลิต</p>
                 <p className="text-[12px] text-[#444653] mt-0.5 leading-snug">
-                  สงวนสิทธิ์เฉพาะอีเมลเจ้าหน้าที่ที่ได้รับอนุญาตเท่านั้น{' '}
+                  สำหรับตรวจสอบยอดขาย คุมคิวพิมพ์ Mimaki ตรวจไฟล์เวกเตอร์ และสต็อกหมึก{' '}
                   <span className="font-semibold text-[#00288e]">(@subliprint-admin.com)</span>
                 </p>
               </div>

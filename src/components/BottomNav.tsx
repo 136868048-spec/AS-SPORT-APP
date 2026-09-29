@@ -8,7 +8,10 @@ interface BottomNavProps {
 }
 
 export function BottomNav({ currentTab, onTabChange, cartCount, role }: BottomNavProps) {
-  const navItems: { id: ScreenTab; label: string; icon: string; badge?: number | boolean }[] = [
+  const isOwner = role === 'admin';
+
+  // Distinct navigation for Customer vs Owner
+  const customerNavItems: { id: ScreenTab; label: string; icon: string; badge?: number | boolean }[] = [
     {
       id: 'home-and-catalog',
       label: 'สินค้า',
@@ -21,9 +24,9 @@ export function BottomNav({ currentTab, onTabChange, cartCount, role }: BottomNa
     },
     {
       id: 'live-support-chat',
-      label: 'แชท/ปรึกษา',
+      label: 'แชทช่าง',
       icon: 'chat_bubble',
-      badge: true, // New message notification
+      badge: true,
     },
     {
       id: 'cart-and-quote',
@@ -32,17 +35,51 @@ export function BottomNav({ currentTab, onTabChange, cartCount, role }: BottomNa
       badge: cartCount > 0 ? cartCount : undefined,
     },
     {
-      id: 'admin-portal',
-      label: role === 'admin' ? 'หลังบ้าน' : 'โปรไฟล์',
-      icon: role === 'admin' ? 'admin_panel_settings' : 'account_circle',
+      id: 'customer-profile',
+      label: 'ออเดอร์ฉัน',
+      icon: 'account_circle',
     },
   ];
+
+  const ownerNavItems: { id: ScreenTab; label: string; icon: string; badge?: number | boolean }[] = [
+    {
+      id: 'owner-dashboard',
+      label: 'ภาพรวมร้าน',
+      icon: 'analytics',
+    },
+    {
+      id: 'owner-orders',
+      label: 'คิวผลิต',
+      icon: 'precision_manufacturing',
+      badge: 3, // 3 pending approvals
+    },
+    {
+      id: 'owner-inventory',
+      label: 'คลังวัสดุ',
+      icon: 'inventory_2',
+    },
+    {
+      id: 'owner-chat',
+      label: 'แชทลูกค้า',
+      icon: 'support_agent',
+      badge: true,
+    },
+    {
+      id: 'owner-settings',
+      label: 'จัดการร้าน',
+      icon: 'admin_panel_settings',
+    },
+  ];
+
+  const navItems = isOwner ? ownerNavItems : customerNavItems;
 
   return (
     <nav className="fixed bottom-0 w-full z-50 pb-safe bg-[#f8f9ff]/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.05)] border-t border-[#e5eeff]">
       <div className="max-w-md mx-auto flex items-center justify-around h-16 px-1">
         {navItems.map((item) => {
-          const isActive = currentTab === item.id;
+          const isActive =
+            currentTab === item.id ||
+            (item.id === 'owner-dashboard' && currentTab === 'admin-portal');
           return (
             <button
               key={item.id}

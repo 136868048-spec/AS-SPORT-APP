@@ -1,6 +1,20 @@
 export type PortalRole = 'customer' | 'admin' | 'guest';
 
-export type ScreenTab = 'home-and-catalog' | 'apparel-customizer' | 'cart-and-quote' | 'live-support-chat' | 'admin-portal';
+export type CustomerTab = 
+  | 'home-and-catalog' 
+  | 'apparel-customizer' 
+  | 'live-support-chat' 
+  | 'cart-and-quote' 
+  | 'customer-profile';
+
+export type OwnerTab = 
+  | 'owner-dashboard' 
+  | 'owner-orders' 
+  | 'owner-inventory' 
+  | 'owner-chat' 
+  | 'owner-settings';
+
+export type ScreenTab = CustomerTab | OwnerTab | 'admin-portal';
 
 export interface ProductItem {
   id: string;

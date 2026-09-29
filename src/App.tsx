@@ -27,18 +27,22 @@ import { CustomizerScreen } from './components/screens/CustomizerScreen';
 import { CartScreen } from './components/screens/CartScreen';
 import { AdminScreen } from './components/screens/AdminScreen';
 import { ChatScreen } from './components/screens/ChatScreen';
+import { CustomerProfileScreen } from './components/screens/CustomerProfileScreen';
 import { QuoteModal } from './components/QuoteModal';
 import { SearchModal } from './components/SearchModal';
 import { SizeChartModal } from './components/SizeChartModal';
+import { ProfileMenuModal } from './components/ProfileMenuModal';
 
 export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [userEmail, setUserEmail] = useState<string>('');
   const [currentTab, setCurrentTab] = useState<ScreenTab>('home-and-catalog');
   const [role, setRole] = useState<PortalRole>('customer');
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Data states
-  const [cartItems, setCartItems] = useState<CartItem[]>(INITIAL_CART_ITEMS);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [productionOrders, setProductionOrders] = useState<ProductionOrder[]>(INITIAL_PRODUCTION_ORDERS);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(INITIAL_CHAT_MESSAGES);
   const [selectedProductId, setSelectedProductId] = useState<string>('hyperspeed-dryfit');
@@ -206,8 +210,63 @@ export default function App() {
     setChatMessages((prev) => [...prev, newMsg]);
   };
 
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setRole('customer');
+    setUserEmail('');
+    setIsProfileMenuOpen(false);
+    setCurrentTab('home-and-catalog');
+    showToast('ออกจากระบบเรียบร้อย');
+  };
+
   const selectedProduct =
     PRODUCTS.find((p) => p.id === selectedProductId) || PRODUCTS[0];
+
+  // If user is not yet logged in, show Login Screen first before entering web
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#f8f9ff] text-[#0b1c30]">
+        <Toast message={toastMessage} />
+        <LoginScreen
+          currentRole={role}
+          onLoginSuccess={(newRole, email) => {
+            setRole(newRole);
+            setUserEmail(email);
+            setIsAuthenticated(true);
+            if (newRole === 'admin') {
+              setCurrentTab('owner-dashboard');
+              showToast('ยินดีต้อนรับสู่ระบบจัดการร้านค้า & โรงงาน AS SPORT');
+            } else {
+              setCurrentTab('home-and-catalog');
+              showToast('เข้าสู่ระบบสำเร็จ ยินดีต้อนรับสู่ AS SPORT');
+            }
+          }}
+          onContinueAsGuest={() => {
+            setRole('guest');
+            setUserEmail('guest@as-sport.user');
+            setIsAuthenticated(true);
+            setCurrentTab('home-and-catalog');
+            showToast('เข้าสู่ระบบแบบผู้เยี่ยมชม (Guest Mode) เรียบร้อย');
+          }}
+          showToast={showToast}
+        />
+      </div>
+    );
+  }
+
+  const isOwnerViewingStorefront =
+    role === 'admin' &&
+    ['home-and-catalog', 'apparel-customizer', 'cart-and-quote', 'customer-profile'].includes(
+      currentTab
+    );
+
+  const isOwnerTab =
+    currentTab === 'owner-dashboard' ||
+    currentTab === 'owner-orders' ||
+    currentTab === 'owner-inventory' ||
+    currentTab === 'owner-chat' ||
+    currentTab === 'owner-settings' ||
+    currentTab === 'admin-portal';
 
   return (
     <div className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] flex flex-col font-sans selection:bg-[#dde1ff]">
@@ -220,12 +279,33 @@ export default function App() {
         onTabChange={setCurrentTab}
         cartCount={cartCount}
         role={role}
-        onOpenLogin={() => setIsLoginOpen(true)}
+        onOpenLogin={() => setIsProfileMenuOpen(true)}
         onSearchClick={() => setIsSearchModalOpen(true)}
       />
 
+      {/* Owner Storefront Preview Floating Banner */}
+      {isOwnerViewingStorefront && (
+        <div className="fixed top-16 left-0 right-0 z-40 bg-[#00288e] text-white py-1.5 px-4 shadow-md flex items-center justify-between text-[12px] max-w-md mx-auto">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="material-symbols-outlined text-[16px] text-cyan-300">
+              visibility
+            </span>
+            <span className="font-semibold truncate">
+              มุมมองหน้าร้านค้าลูกค้า (Storefront Preview)
+            </span>
+          </div>
+          <button
+            onClick={() => setCurrentTab('owner-dashboard')}
+            className="px-2.5 py-0.5 rounded-lg bg-white text-[#00288e] text-[11px] font-bold shrink-0 hover:bg-slate-100 active:scale-95 transition-all"
+            type="button"
+          >
+            กลับระบบหลังบ้าน
+          </button>
+        </div>
+      )}
+
       {/* Content Area with viewport container */}
-      <main className="flex-1 w-full max-w-md mx-auto pt-20 px-4">
+      <main className={`flex-1 w-full max-w-md mx-auto px-4 ${isOwnerViewingStorefront ? 'pt-26' : 'pt-20'}`}>
         {currentTab === 'home-and-catalog' && (
           <HomeScreen
             onTabChange={setCurrentTab}
@@ -271,18 +351,46 @@ export default function App() {
           />
         )}
 
-        {currentTab === 'admin-portal' && (
-          <AdminScreen
+        {currentTab === 'customer-profile' && (
+          <CustomerProfileScreen
             orders={productionOrders}
+            userEmail={userEmail}
             onTabChange={setCurrentTab}
-            onLogout={() => {
-              setRole('customer');
-              showToast('ออกจากระบบหลังบ้านแล้ว');
-              setCurrentTab('home-and-catalog');
-            }}
+            onLogout={handleLogout}
             showToast={showToast}
-            onUpdateOrderStatus={handleUpdateOrderStatus}
           />
+        )}
+
+        {/* Owner Management System Screens */}
+        {isOwnerTab && (
+          role === 'admin' ? (
+            <AdminScreen
+              orders={productionOrders}
+              onTabChange={setCurrentTab}
+              onLogout={handleLogout}
+              showToast={showToast}
+              onUpdateOrderStatus={handleUpdateOrderStatus}
+              currentTab={currentTab}
+            />
+          ) : (
+            <div className="bg-white p-6 rounded-2xl text-center border border-[#e5eeff] flex flex-col items-center gap-3">
+              <span className="material-symbols-outlined text-[40px] text-amber-500">lock</span>
+              <h3 className="text-[16px] font-bold text-[#0b1c30]">พื้นที่เฉพาะเจ้าของร้าน &amp; ผู้ดูแลระบบ</h3>
+              <p className="text-[12px] text-[#565e74]">
+                สงวนสิทธิ์การเข้าถึงเฉพาะบัญชีผู้จัดการร้านเท่านั้น กรุณาลงชื่อเข้าใช้ด้วยบัญชีเจ้าของร้าน
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsAuthenticated(false);
+                  setRole('admin');
+                }}
+                className="mt-2 px-4 py-2 bg-[#00288e] text-white rounded-xl text-[13px] font-bold"
+              >
+                เข้าสู่ระบบเจ้าของร้าน
+              </button>
+            </div>
+          )
         )}
       </main>
 
@@ -290,38 +398,31 @@ export default function App() {
       <BottomNav
         currentTab={currentTab}
         onTabChange={(tab) => {
-          if (tab === 'admin-portal' && role !== 'admin') {
-            // Prompt login or direct entry
-            setIsLoginOpen(true);
-          } else {
-            setCurrentTab(tab);
+          if (role !== 'admin' && (tab.startsWith('owner-') || tab === 'admin-portal')) {
+            showToast('สงวนสิทธิ์เฉพาะเจ้าของร้านค้าเท่านั้น');
+            return;
           }
+          setCurrentTab(tab);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         cartCount={cartCount}
         role={role}
       />
 
-      {/* Login Screen / Portal Gateway Overlay */}
-      {isLoginOpen && (
-        <LoginScreen
-          currentRole={role}
-          onLoginSuccess={(newRole) => {
-            setRole(newRole);
-            setIsLoginOpen(false);
-            if (newRole === 'admin') {
-              setCurrentTab('admin-portal');
-            }
-          }}
-          onClose={() => setIsLoginOpen(false)}
-          onContinueAsGuest={() => {
-            setRole('guest');
-            setIsLoginOpen(false);
-            showToast('เข้าสู่ระบบแบบผู้เยี่ยมชม (Guest Mode)');
-          }}
-          showToast={showToast}
-        />
-      )}
+      {/* Profile & Account Menu Modal */}
+      <ProfileMenuModal
+        isOpen={isProfileMenuOpen}
+        onClose={() => setIsProfileMenuOpen(false)}
+        role={role}
+        userEmail={userEmail}
+        onLogout={handleLogout}
+        onOwnerLoginRequest={() => {
+          setIsAuthenticated(false);
+          setRole('admin');
+          showToast('กรุณาลงชื่อเข้าใช้ด้วยบัญชีเจ้าของร้าน/แอดมิน');
+        }}
+        onTabChange={setCurrentTab}
+      />
 
       {/* Search Modal */}
       <SearchModal
