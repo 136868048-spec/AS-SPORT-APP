@@ -1,0 +1,6 @@
+{
+  "name": "AS SPORT - ระบบสั่งผลิตเสื้อพิมพ์ลายคุณภาพสูง",
+  "description": "ระบบสั่งผลิตเสื้อพิมพ์ลายคุณภาพสูงและจัดการงานพิมพ์ซับลิเมชัน AS SPORT",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
