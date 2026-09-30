@@ -27,6 +27,26 @@ export function LoginScreen({
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
 
+  // -------------------------------------------------------------
+  // ฟังก์ชันตรวจสอบรูปแบบอีเมลจริง (Email Format & Domain Check)
+  // -------------------------------------------------------------
+  const validateRealEmail = (inputEmail: string) => {
+    // 1. ตรวจสอบโครงสร้างอีเมลเบื้องต้นด้วย Regular Expression (ต้องมี @ และ .นามสกุล)
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(inputEmail)) {
+      return { valid: false, message: 'รูปแบบอีเมลไม่ถูกต้อง กรุณากรอกอีเมลจริง (เช่น name@gmail.com)' };
+    }
+
+    // 2. ตรวจสอบกรณีการพิมพ์โดเมนปลอม/สุ่ม (เช่น test@test.com, abc@123.com)
+    const domain = inputEmail.split('@')[1]?.toLowerCase();
+    const fakeDomains = ['test.com', 'example.com', 'mailinator.com', 'tempmail.com', '123.com'];
+    if (fakeDomains.includes(domain)) {
+      return { valid: false, message: 'กรุณาใช้อีเมลจริง ไม่ใช้อีเมลสำหรับทดสอบหรืออีเมลชั่วคราว' };
+    }
+
+    return { valid: true, message: '' };
+  };
+
   const handlePortalSwitch = (portal: 'customer' | 'admin') => {
     setSelectedPortal(portal);
     if (portal === 'admin') {
@@ -38,6 +58,14 @@ export function LoginScreen({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // --- เพิ่มการตรวจสอบอีเมลจริงก่อนดำเนินการล็อกอิน ---
+    const emailCheck = validateRealEmail(email);
+    if (!emailCheck.valid) {
+      showToast(emailCheck.message);
+      return;
+    }
+
     if (selectedPortal === 'admin') {
       if (!email.toLowerCase().includes('admin')) {
         showToast('กรุณาใช้อีเมลทางการของแอดมิน (@subliprint-admin.com)');
